@@ -1,0 +1,13 @@
+header-includes:
+  - \newfontfamily
+  - \cyrillicfont{DejaVuSerif}
+mainfont: DejaVuSerif
+sansfont: DejaVuSans
+monofont: DejaVuSansMono
+mathfont: DejaVuSansMono
+geometry:
+  - left=2cm
+  - right=2cm
+  - top=2cm
+  - bottom=2cm
+papersize: a4
