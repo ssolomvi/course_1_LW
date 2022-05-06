@@ -1,0 +1,58 @@
+mint@mint:~/Documents/lab21$ ./script21.sh
+./script21.sh: illegal option 
+usage: ./script21.sh [-t]... FILE... 
+use -? option for help
+mint@mint:~/Documents/lab21$ ./script21.sh -?
+NAME
+	  ./script21.sh -- deletes files with matching suffix.
+
+SYNOPSIS
+	  ./script21.sh FILE... 
+	  ./script21.sh [-?]
+
+DESCRIPTION
+	  Compares the specified file with all other files that have the same suffix, with the deletion of matching files.
+	  -t, --tracing  enable tracing.
+	  -?, --help	 show help (this menu) and exits
+mint@mint:~/Documents/lab21$ cd tests & ls
+am.txt         harder.c    meme.png        so.txt     uniq.cpp  working.c
+avl.jpg        i.txt       ordinary.txt    sorry.txt  vim.txt
+document.pptx  kitten.png  silhouette.png  tree.png   willbe.c
+mint@mint:~/Documents/lab21/tests$ ls | wc -l
+16
+mint@mint:~/Documents/lab21/tests$ find . -type f -name "*.c" | wc -l
+3
+mint@mint:~/Documents/lab21/tests$ ./script21.sh willbe.c
+The program deleted 2 file(s) with the same suffix as specified.
+mint@mint:~/Documents/lab21/tests$ ./script21.sh -t, uniq.cpp
+++ cut -f 2 -d.
+++ echo uniq.cpp
++ suf=cpp
+++ grep -v uniq.cpp
+++ find ./ -maxdepth 1 -name '*\.cpp'
++ fail=
++ '[' 0 -eq 0 ']'
++ echo 'There is the only file in this directory with specified suffix.'
+There is the only file in this directory with specified suffix.
++ exit 0
+mint@mint:~/Documents/lab21/tests$ ./script21.sh -t avl.txt
+./script21.sh: illegal option avl.txt
+usage: ./script21.sh [-t]... FILE... 
+use -? option for help
+mint@mint:~/Documents/lab21/tests$ ./script21.sh -t , avl.jpg
+./script21.sh: illegal option ,
+usage: ./script21.sh [-t]... FILE... 
+use -? option for help
+mint@mint:~/Documents/lab21/tests$ ./script21.sh -t,avl.jpg
+./script21.sh: illegal option -tavl.jpg
+usage: ./script21.sh [-t]... FILE... 
+use -? option for help
+mint@mint:~/Documents/lab21/tests$ find . -type f -name "*.txt" | wc -l
+6
+mint@mint:~/Documents/lab21/tests$ ./script21.sh am.txt
+The program deleted 5 file(s) with the same suffix as specified.
+mint@mint:~/Documents/lab21/tests$ ls | wc -l
+9
+mint@mint:~/Documents/lab21/tests$ ls
+am.txt   document.pptx  meme.png        tree.png  willbe.c
+avl.jpg  kitten.png     silhouette.png  uniq.cpp
