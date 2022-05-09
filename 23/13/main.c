@@ -1,125 +1,178 @@
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
-
+#include <stdlib.h>
 #include "tree.h"
 
-#define IGNORE '\f'
-#define VALUE_NOT_FOUND "Error: value '%c' not found. 'p' to print tree\n"
+#define VALID_USER_INPUT(x) ((x) == '1' || (x) == '2' || (x) == '3' || (x) == '4' || (x) == '5')
 
-void print_help()
+void print_item(T, int);
+void print_way(way, int, T);
+
+int main()
 {
-    printf("Operations on general trees\n\n");
+    printf("Choose an option:\n");
+    printf("1 - insert value into tree\n");
+    printf("2 - remove value from tree\n");
+    printf("3 - print tree\n");
+    printf("4 - check tree for list structure\n");
+    printf("5 - exit\n");
+    printf("Your choose: ");
+    int i, f;
+    char user_input[BUFSIZ];
+    tree t;
+    way_with_target* found_ways_to_parent;
+    way_with_target* found_ways_to_value_to_remove;
+    way_with_target selected_way_with_target;
+    int found_ways_to_parent_count, selected_way_index;
+    int found_ways_to_value_to_remove_count;
+    bool is_tree_structured_as_list;
 
-    printf("Program operates with a general tree, using commands, supplied by \
-tree node's values of type char.\n\n");
+    T value_to_insert = -1, parent_value, value_to_remove;
+    int exited = 0;
 
-    printf("Commands list: \n\
-\t a - Add new node, \n\
-\t r - Remove subtree, \n\
-\t x - Execute task's action (if the tree is a linear list of its vertexes), \n\
-\t p - Print tree, \n\
-\t h - Show Help message, \n\
-\t q - Quit.\n\n");
-}
+    init_tree(&t);
 
-void skip_line()
-{
-    int c = getchar();
-    while ((c != '\n') && (c != EOF)) {
-        c = getchar();
-    }
-}
-
-TreeItem prompt_item(char *prompt_msg)
-{
-    printf("%s", prompt_msg);
-    char c = getchar();
-    skip_line();
-    return c;
-}
-
-int prompt_cmd()
-{
-    printf(">>> ");
-
-    int c = getchar(), res = c;
-
-    if ((c < 'a') || (c > 'z')) {
-        if (c == EOF) {
-            printf("\n");
-            return EOF;
-        } else if (c != '\n') { // (c == '\n') => nothing entered, don't raise error
-            printf("Error: syntax error. Expected command. 'h' to get help\n");
+    while (!exited)
+    {
+        scanf("%s", user_input);
+        if (strlen(user_input) != 1 || !VALID_USER_INPUT(*user_input))
+        {
+            printf("Invalid input! Try again...\n\n");
+            continue;
         }
-        res = IGNORE;
-    }
 
-    while ((c != '\n') && (c != EOF)) {
-        c = getchar();
-    }
+        switch (*user_input - 48)
+        {
+            case 1:
+                printf("Input value to insert: ");
+                scanf("%d", &value_to_insert);
+                printf("Input value of parent element: ");
+                scanf("%d", &parent_value);
 
-    return res;
-}
+                if (t.root != NULL)
+                {
+                    find_ways_to(t, parent_value, &found_ways_to_parent, &found_ways_to_parent_count);
 
-int main(int argc, char *argv[])
-{
-    if ((argc > 1) && !(strcmp(argv[1], "-h") && strcmp(argv[1], "--help"))) {
-        print_help();
-        exit(0);
-    }
+                    if (found_ways_to_parent_count == 0) {
+                        printf("There is no such value = %d in tree... Try again\n\n", parent_value);
+                        continue;
+                    }
 
-    Tree tree = tree_create(prompt_item("Tree's root value: "));
+                    for (i = 0; i < found_ways_to_parent_count; i++) {
+                        print_way(found_ways_to_parent[i].way_to_target, i + 1, parent_value);
+                    }
 
-    int cmd = IGNORE;
-    while ((cmd = prompt_cmd()) != EOF) {
-        TreeItem looking_for, value;
-        switch (cmd) {
-            case 'a': // add new node with value after parent's node (by value)
-                looking_for = prompt_item("Append new node after node with value: ");
-                Tree *parent = tree_find(&tree, looking_for);
+                    printf("\nSelect way to inserted item's parent: ");
+                    scanf("%d", &selected_way_index);
 
-                if (parent == NULL) {
-                    printf(VALUE_NOT_FOUND, looking_for);
-                } else {
-                    value = prompt_item("New node's value:");
-                    tree_add(*parent, value);
+                    if (selected_way_index <= 0 || selected_way_index > found_ways_to_parent_count) {
+                        printf("Invalid selected way index! Try again...\n\n");
+                        continue;
+                    }
+
+                    selected_way_with_target = found_ways_to_parent[selected_way_index - 1];
+
+                    insert_item(&t, selected_way_with_target.target, value_to_insert);
+
+                    for (i = 0; i < found_ways_to_parent_count; i++)
+                    {
+                        free(found_ways_to_parent[i].way_to_target.chain);
+                    }
+                    free(found_ways_to_parent);
                 }
-                break;
+                else
+                {
+                    selected_way_with_target.target = NULL;
+                    selected_way_with_target.way_to_target.chain = NULL;
+                    selected_way_with_target.way_to_target.chain_length = 0;
 
-            case 'r': // remove first matching node by value
-                looking_for = prompt_item("Value of node to be removed along with subnodes: ");
-                Tree *to_remove = tree_find(&tree, looking_for);
-
-                if (to_remove == NULL) {
-                    printf(VALUE_NOT_FOUND, looking_for);
-                } else {
-                    tree_remove(to_remove);
+                    insert_item(&t, selected_way_with_target.target, value_to_insert);
                 }
+                printf("\n");
                 break;
+            case 2:
+                printf("Input value to remove it and it's subtree from tree: ");
+                scanf("%d", &value_to_remove);
 
-            case 'x': // if the tree is a linear list
-                is_linear_list(tree) ? printf("True\n") : printf("False\n");
+                found_ways_to_value_to_remove = NULL;
+                found_ways_to_value_to_remove_count = 0;
+                find_ways_to(t, value_to_remove, &found_ways_to_value_to_remove, &found_ways_to_value_to_remove_count);
+
+                if (found_ways_to_value_to_remove_count == 0)
+                {
+                    printf("There is no such value = %d in tree... Try again\n\n", value_to_remove);
+                    continue;
+                }
+
+                for (i = 0; i < found_ways_to_value_to_remove_count; i++)
+                {
+                    print_way(found_ways_to_value_to_remove[i].way_to_target, i + 1, value_to_remove);
+                }
+
+                printf("\nSelect way to [subtree's to remove] root: ");
+                scanf("%d", &selected_way_index);
+
+                if (selected_way_index <= 0 || selected_way_index > found_ways_to_value_to_remove_count)
+                {
+                    printf("Invalid selected way index! Try again...\n\n");
+                    continue;
+                }
+
+                selected_way_with_target = found_ways_to_value_to_remove[selected_way_index - 1];
+
+                remove_item(&t, selected_way_with_target.target);
+
+                for (i = 0; i < found_ways_to_value_to_remove_count; i++)
+                {
+                    free(found_ways_to_value_to_remove[i].way_to_target.chain);
+                }
+                free(found_ways_to_value_to_remove);
+                printf("\n\n");
                 break;
-
-            case 'p': // print tree
-                tree_print(tree);
+            case 3:
+                printf("Tree state:\n--------------------\n\n");
+                prefix_traverse(t, print_item);
+                printf("\n--------------------\n\n");
                 break;
-
-            case 'q': // quit
-                exit(0);
-
-            case 'h': // print help message
-                print_help();
+            case 4:
+                is_tree_structured_as_list = is_structured_like_linear_list(t);
+                printf("Tree is %structured as list\n\n", is_tree_structured_as_list == yes ? "s" : "not s");
                 break;
-
-            case IGNORE:
+            case 5:
+                exited = 1;
+                printf("\n\n");
                 break;
-
-            default:
-                printf("Error: unknown command '%c'. 'h' to get help\n", cmd);
         }
     }
+
+    clear(&t);
 
     return 0;
+}
+
+void print_item(T value, int depth)
+{
+    int i;
+
+    for (i = 0; i < depth; i++)
+    {
+        printf("    ");
+    }
+
+    printf("%d|\n", value);
+}
+
+void print_way(way found_way, int index, T target_value)
+{
+    int i;
+
+    printf("%d. ", index);
+
+    for (i = 0; i < found_way.chain_length; i++)
+    {
+        printf("%d ---%d---> ", found_way.chain[i].value,
+               found_way.chain[i].index_from_parent_item);
+    }
+
+    printf("%d\n", target_value);
 }
