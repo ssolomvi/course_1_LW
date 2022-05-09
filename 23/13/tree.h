@@ -1,16 +1,55 @@
-#include <stdbool.h>
-#ifndef __TREE_H__
-#define __TREE_H__
+#ifndef TREE_H
+#define TREE_H
 
-typedef char TreeItem;
+typedef int T;
 
-typedef struct tagTree *Tree;
+typedef struct tree_item
+{
+    T data;
+    unsigned subtrees_count;
+    struct tree_item* subtrees;
+} tree_item;
 
-Tree   tree_create(TreeItem rootValue);
-Tree  *tree_find(Tree *tree, TreeItem c);
-Tree  *tree_add(Tree parent, TreeItem value);
-void   tree_remove(Tree *tree);
-bool   is_linear_list(Tree tree);
-void   tree_print(Tree tree);
+typedef struct tree
+{
+    tree_item* root;
+} tree;
 
-#endif // __TREE_H__
+typedef enum bool
+{
+    yes,
+    no
+} bool;
+
+typedef struct way_item
+{
+    T value;
+    int index_from_parent_item;
+} way_item;
+
+typedef struct way
+{
+    way_item* chain;
+    int chain_length;
+} way;
+
+typedef struct way_with_target
+{
+    way way_to_target;
+    tree_item* target;
+} way_with_target;
+
+void find_ways_to(tree, T, way_with_target**, int*);
+void inner_find_ways_to(tree_item*, T, way*, way_with_target**, int*);
+void find_parent(tree, tree_item*, tree_item**, int*);
+void find_parent_inner(tree_item*, tree_item*, tree_item**, int*);
+void free_item_and_null(tree_item**);
+void init_tree(tree*);
+void insert_item(tree*, tree_item*, T);
+void remove_item(tree*, tree_item*);
+void prefix_traverse(tree, void (*)(T value, int depth));
+void prefix_traverse_inner(tree_item*, int, void (*)(T value, int depth));
+bool is_structured_like_linear_list(tree);
+void clear(tree*);
+
+#endif //TREE_H
