@@ -3,21 +3,15 @@
 #include <stdlib.h>
 #include "tree.h"
 
-#define VALID_USER_INPUT(x) ((x) == '1' || (x) == '2' || (x) == '3' || (x) == '4' || (x) == '5')
+#define VALID_USER_INPUT(x) ((x) == '1' || (x) == '2' || (x) == '3' || (x) == '4' || (x) == '5' || (x) == '6')
 
 void print_item(T, int);
 void print_way(way, int, T);
+void help();
 
 int main()
 {
-    printf("Choose an option:\n");
-    printf("1 - insert value into tree\n");
-    printf("2 - remove value from tree\n");
-    printf("3 - print tree\n");
-    printf("4 - check tree for list structure\n");
-    printf("5 - exit\n");
-    printf("Your choose: ");
-    int i, f;
+    int i;
     char user_input[BUFSIZ];
     tree t;
     way_with_target* found_ways_to_parent;
@@ -31,6 +25,7 @@ int main()
     int exited = 0;
 
     init_tree(&t);
+    help();
 
     while (!exited)
     {
@@ -46,8 +41,10 @@ int main()
             case 1:
                 printf("Input value to insert: ");
                 scanf("%d", &value_to_insert);
+                // TODO TYPE VALIDATION
                 printf("Input value of parent element: ");
                 scanf("%d", &parent_value);
+                // TODO TYPE VALIDATION
 
                 if (t.root != NULL)
                 {
@@ -92,6 +89,7 @@ int main()
                 break;
             case 2:
                 printf("Input value to remove it and it's subtree from tree: ");
+                // TODO TYPE VALIDATION
                 scanf("%d", &value_to_remove);
 
                 found_ways_to_value_to_remove = NULL;
@@ -139,8 +137,11 @@ int main()
                 printf("Tree is %structured as list\n\n", is_tree_structured_as_list == yes ? "s" : "not s");
                 break;
             case 5:
+                help();
+                break;
+            case 6:
                 exited = 1;
-                printf("\n\n");
+                printf("\n");
                 break;
         }
     }
@@ -175,4 +176,16 @@ void print_way(way found_way, int index, T target_value)
     }
 
     printf("%d\n", target_value);
+}
+
+void help()
+{
+    printf("The program operates with a general tree with items of integer type\n");
+    printf("    1 - insert value into tree\n");
+    printf("    2 - remove value from tree\n");
+    printf("    3 - print tree\n");
+    printf("    4 - check tree for list structure\n");
+    printf("    5 - help menu\n");
+    printf("    6 - exit\n");
+    printf("Your choose: ");
 }
