@@ -16,11 +16,11 @@ int get_priority(char c)
 Tree tree_create(Token tokens[], int idx_left, int idx_right)
 {
     Tree result_tree = (Tree) malloc(sizeof(struct tree_node));
-    if (idx_left > idx_right) { // Для корректной обработки унарного минуса
+    if (idx_left > idx_right) { // for correct unary minus process
         return NULL;
     }
 
-    if (idx_left == idx_right) { // Тривиальный случай рекурсии (число, переменная)
+    if (idx_left == idx_right) {
         result_tree->node  = tokens[idx_left];
         result_tree->left  = NULL;
         result_tree->right = NULL;
@@ -29,9 +29,9 @@ Tree tree_create(Token tokens[], int idx_left, int idx_right)
 
     int priority;
     int minimal_priority = get_priority('a');
-    int brackets_count = 0; // Счётчик открытых скобок
+    int brackets_count = 0;
     int operator_position;
-    // Поиск позиции последнего оператора с наименьшим приоритетом
+    // search position of the last operator with the least priority
     for (int i = idx_left; i <= idx_right; ++i) {
         if ((tokens[i].type == BRACKET) && (tokens[i].data.is_left_bracket)) {
             ++brackets_count;
@@ -41,7 +41,7 @@ Tree tree_create(Token tokens[], int idx_left, int idx_right)
             --brackets_count;
             continue;
         }
-        if (brackets_count > 0) { // Пропуск того, что в скобках
+        if (brackets_count > 0) { // skip brackets content
             continue;
         }
         if (tokens[i].type == OPERATOR) {
