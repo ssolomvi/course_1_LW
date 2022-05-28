@@ -117,8 +117,6 @@ void do_div(Tree* tree)
         find_minus_operator(tree);
         check_if_mult(tree);
     }
-    print_with_levels(*tree, 0, false);
-    printf("\n___________________\n");
 
     division_transform_iterator(tree);
     division_transform_iterator(tree);
